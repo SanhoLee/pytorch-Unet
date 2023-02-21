@@ -1,13 +1,14 @@
 ## import packages
 import os
+
+import matplotlib.pyplot as plt
 import numpy as np
 
 import torch
-import torch.nn as nn
 import torch.utils.data
 
-
-## Dataloader
+data_dir = "./datasets"
+# Dataloader
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, data_dir, transform=None):
         # data의 transform이 있을 경우에는 데이터 적용한다
@@ -19,15 +20,18 @@ class Dataset(torch.utils.data.Dataset):
         lst_label = [f for f in lst_data if f.startswith('label')]
         lst_input = [f for f in lst_data if f.startswith('input')]
 
+        lst_label.sort()
+        lst_input.sort()
+
         # add list variables
         self.lst_label = lst_label
         self.lst_input = lst_input
 
-##  Data length, method ocf // len()
+#  Data length, method ocf // len()
     def __len__(self):
         return len(self.lst_label)
 
-##  Get a specific index data, method of // instanceName(index)
+#  Get a specific index data, method of // instanceName(index)
     def __getitem__(self, index):
         # 인덱스 선택으로 해당 데이터를 가져올 수 있는 built-in method.
 
@@ -39,13 +43,13 @@ class Dataset(torch.utils.data.Dataset):
         label = label / 255.0
         input = input / 255.0
 
-##      어레이 차원 확인 후, 3차원 매트릭스로 변경, channel 데이터 인덱스 자리를 만들기 위해서 ?
+#      어레이 차원 확인 후, 3차원 매트릭스로 변경, channel 데이터 인덱스 자리를 만들기 위해서 ?
         if label.ndim == 2:
             label = label[:, :, np.newaxis]
         if input.ndim == 2:
             input = input[:, :, np.newaxis]
 
-##      label, input 데이터를 사전형으로 준비
+#      label, input 데이터를 사전형으로 준비
         data = {'input': input, 'label': label}
 
         if self.transform:
@@ -53,6 +57,26 @@ class Dataset(torch.utils.data.Dataset):
             # transform 클래스의 return 값은 여기서 선언한 data 사전형과 동일하게 해줘야 한다.
 
         return data
+
+## Test Dataset class
+dataset_train = Dataset(data_dir=os.path.join(data_dir, 'train'))
+data = dataset_train.__getitem__(0)
+
+input = data['input']
+label = data['label']
+
+##
+plt.subplot(121)
+plt.title('input')
+plt.imshow(input.squeeze())     # 마지막 채널 인덱스를 없애준다.
+# plt.imshow(input)
+
+plt.subplot(122)
+plt.title('label')
+plt.imshow(label.squeeze())     # 마지막 채널 인덱스를 없애준다.
+# plt.imshow(label)
+
+plt.show()
 
 
 ## Transform classes, It will be used when creating transform combination, likes 'transforms.Compose([...])'
@@ -64,8 +88,6 @@ class ToTensor(object):
         label, input = data['label'], data['input']
 
         # numpy to tensor, change and set to tensor-manner in terms of its index position.
-        # (Todo..)numpy index for img : ( , , )
-        # (Todo..)tensor index for img : ( , , )
         label = label.transpose((2,0,1)).astype(np.float32)
         input = input.transpose((2,0,1)).astype(np.float32)
 
@@ -84,8 +106,8 @@ class Normalization(object):
         self.std = std
     def __call__(self, data):
         # Only applying to input data,
-        # (Todo Checking) Probably, since label data is consist of only 0 and 1,
-        #  binary data, don't need to normalization.
+        # label data is consist of only 0 and 1(vary with 2 values),
+        # binary data, don't need to normalization.
 
         label, input = data['label'], data['input']
 
