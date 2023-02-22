@@ -6,9 +6,10 @@ import numpy as np
 
 import torch
 import torch.utils.data
+from torchvision import transforms
 
 data_dir = "./datasets"
-# Dataloader
+## Dataloader
 class Dataset(torch.utils.data.Dataset):
     def __init__(self, data_dir, transform=None):
         # data의 transform이 있을 경우에는 데이터 적용한다
@@ -58,25 +59,7 @@ class Dataset(torch.utils.data.Dataset):
 
         return data
 
-## Test Dataset class
-dataset_train = Dataset(data_dir=os.path.join(data_dir, 'train'))
-data = dataset_train.__getitem__(0)
 
-input = data['input']
-label = data['label']
-
-##
-plt.subplot(121)
-plt.title('input')
-plt.imshow(input.squeeze())     # 마지막 채널 인덱스를 없애준다.
-# plt.imshow(input)
-
-plt.subplot(122)
-plt.title('label')
-plt.imshow(label.squeeze())     # 마지막 채널 인덱스를 없애준다.
-# plt.imshow(label)
-
-plt.show()
 
 
 ## Transform classes, It will be used when creating transform combination, likes 'transforms.Compose([...])'
@@ -92,7 +75,7 @@ class ToTensor(object):
         input = input.transpose((2,0,1)).astype(np.float32)
 
         # map to return data
-        data = {'label': torch.from_numpy(label), 'input':torch.from_numpy(input) }
+        data = {'label': torch.from_numpy(label), 'input': torch.from_numpy(input) }
 
         return data
 
@@ -126,7 +109,7 @@ class RandomFlip(object):
         # 난수 생성에 의한 데이터 조작
         if np.random.rand() > 0.5:
             label = np.fliplr(label)
-            input = np.fliplr(label)
+            input = np.fliplr(input)
 
         if np.random.rand() > 0.5:
             label = np.flipud(label)
@@ -134,3 +117,25 @@ class RandomFlip(object):
 
         data = {'label': label, 'input': input}
         return data
+
+
+
+## Test Dataset class with Transform classes
+transform = transforms.Compose([Normalization(mean=0.5, std=0.5), RandomFlip(), ToTensor()])
+
+dataset_train = Dataset(data_dir=os.path.join(data_dir, 'train'), transform=transform)
+data = dataset_train.__getitem__(3)
+
+input = data['input']
+label = data['label']
+
+##
+plt.subplot(121)
+plt.title('input_withTransform')
+plt.imshow(input.squeeze())     # 마지막 채널 인덱스를 없애준다.
+
+plt.subplot(122)
+plt.title('label_withTransform')
+plt.imshow(label.squeeze())     # 마지막 채널 인덱스를 없애준다.
+
+plt.show()
