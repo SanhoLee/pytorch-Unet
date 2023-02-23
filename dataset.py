@@ -124,7 +124,8 @@ class RandomFlip(object):
 transform = transforms.Compose([Normalization(mean=0.5, std=0.5), RandomFlip(), ToTensor()])
 
 dataset_train = Dataset(data_dir=os.path.join(data_dir, 'train'), transform=transform)
-data = dataset_train.__getitem__(3)
+# data = dataset_train.__getitem__(3)
+data = dataset_train[3]
 
 input = data['input']
 label = data['label']
