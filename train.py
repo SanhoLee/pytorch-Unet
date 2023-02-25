@@ -118,8 +118,9 @@ for epoch in range(st_epoch + 1, num_epoch + 1):
 
     for batch, data in enumerate(loader_train, 1):  # 최초 1 부터 enumerate counting 한다.
         # forward pass
-        label = data['label']
-        input = data['input']
+        label = data['label'].to(device)
+        input = data['input'].to(device)    # cpu? gpu? 에 따라서, data도 그 형태에 맞게 설정해줘야 한다?
+
 
         output = net(input)
 

@@ -95,18 +95,18 @@ for i in range(nframe_test):
 
 ## show and check the data set.
 
-idx = 10
-plt.figure(figsize=(10,5))
-
-img1 = np.load(os.path.join(dir_save_train, 'label_%03d.npy' % idx ))
-plt.subplot(121)
-plt.imshow(img1, cmap='gray')
-plt.title('label')
-
-img2 = np.load(os.path.join(dir_save_train, 'input_%03d.npy' % idx ))
-plt.subplot(122)
-plt.imshow(img2, cmap='gray')
-plt.title('input')
-
-plt.show()
+# idx = 10
+# plt.figure(figsize=(10,5))
+#
+# img1 = np.load(os.path.join(dir_save_train, 'label_%03d.npy' % idx ))
+# plt.subplot(121)
+# plt.imshow(img1, cmap='gray')
+# plt.title('label')
+#
+# img2 = np.load(os.path.join(dir_save_train, 'input_%03d.npy' % idx ))
+# plt.subplot(122)
+# plt.imshow(img2, cmap='gray')
+# plt.title('input')
+#
+# plt.show()
 
