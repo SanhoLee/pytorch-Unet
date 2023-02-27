@@ -1,12 +1,9 @@
 ## import packages
 import os
-
-import matplotlib.pyplot as plt
 import numpy as np
 
 import torch
 import torch.utils.data
-from torchvision import transforms
 
 data_dir = "./datasets"
 ## Dataloader
@@ -117,26 +114,3 @@ class RandomFlip(object):
 
         data = {'label': label, 'input': input}
         return data
-
-
-
-## Test Dataset class with Transform classes
-transform = transforms.Compose([Normalization(mean=0.5, std=0.5), RandomFlip(), ToTensor()])
-
-dataset_train = Dataset(data_dir=os.path.join(data_dir, 'train'), transform=transform)
-# data = dataset_train.__getitem__(3)
-data = dataset_train[3]
-
-input = data['input']
-label = data['label']
-
-##
-plt.subplot(121)
-plt.title('input_withTransform')
-plt.imshow(input.squeeze())     # 마지막 채널 인덱스를 없애준다.
-
-plt.subplot(122)
-plt.title('label_withTransform')
-plt.imshow(label.squeeze())     # 마지막 채널 인덱스를 없애준다.
-
-plt.show()

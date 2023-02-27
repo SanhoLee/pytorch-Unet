@@ -9,8 +9,9 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torchvision import transforms, datasets
 
-from dataset import *
 from model import UNet
+from dataset import *
+from util import load
 
 ##트레이닝 파라미터 설정
 
@@ -22,6 +23,11 @@ data_dir = "./datasets"
 ckpt_dir = "./checkpoint"  # train 된 network 가 저장되는 checkpoint
 log_dir = "./log"  # tensorboard log files
 result_dir = "./result"  # test 결과를 저장
+
+if not os.path.exists(result_dir):
+    os.makedirs(result_dir)
+    os.makedirs(os.path.join(result_dir, 'png'))
+    os.makedirs(os.path.join(result_dir, 'numpy'))
 
 if not os.path.exists(result_dir):
     os.makedirs(result_dir)
@@ -60,42 +66,17 @@ fn_denorm = lambda x, mean, std: (x * std) + mean
 fn_class = lambda x: 1.0 * (x > 0.5)
 
 
-## Save Network
-def save(ckpt_dir, net, optim, epoch):
-    if not os.path.exists(ckpt_dir):
-        os.makedirs(ckpt_dir)
-
-    torch.save(
-        {
-            'net': net.state_dict(),
-            'optim': optim.state_dict()
-        },
-        "./%s/model_epoch%d.pth" % (ckpt_dir, epoch))
-
-
-## Load Network
-def load(ckpt_dir, net, optim):
-    if not os.path.exists(ckpt_dir):
-        epoch = 0
-        return net, optim, epoch
-
-    ckpt_lst = os.listdir(ckpt_dir)
-    ckpt_lst.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
-
-    dict_model = torch.load('./%s/%s' % (ckpt_dir, ckpt_lst[-1]))  # 가장 마지막 요소를 가져옴
-
-    net.load_state_dict(dict_model['net'])
-    optim.load_state_dict(dict_model['optim'])
-    epoch = int(ckpt_lst[-1].split('epoch')[1].split('.pth')[0])
-
-    return net, optim, epoch
-
-
 ## Training and Validation of Network.
-st_epoch = 0  # training 이 시작되는 epoch 을 설정
+# st_epoch = 0  # training 이 시작되는 epoch 을 설정
 
 # 저장한 네트워크 있으면, 불러와서 train 진행함
 net, optim, st_epoch = load(ckpt_dir=ckpt_dir, net=net, optim=optim)
+
+'''
+    evaluation 에서는, net, optim 정보만 활용한다.
+    st_epoch의 경우는 train 하는 경우에 필요한 변수이며, 여기서는 사용되고 있지 않다.
+    
+'''
 
 # ------------------------------------------------------------------------------------
 # Validation of Network.
